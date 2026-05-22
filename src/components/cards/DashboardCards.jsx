@@ -1,13 +1,49 @@
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { weeklySummary, mistakes, achievements, quickAccess, emotionData, monthlyStats } from '../../data/mockData'
+import {
+  weeklySummary,
+  mistakes,
+  achievements,
+  quickAccess,
+  emotionData,
+  monthlyStats,
+  expenseCategories,
+} from '../../data/mockData'
 import useStore from '../../store/useStore'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '../../i18n'
+import { useAuth } from '../../hooks/useAuth'
+import { saveExpenseBudgets, useExpenses, useUserProfile } from '../../hooks/useFirestore'
+
+const defaultBudgetConfig = {
+  food: { budget: 9000, color: '#ff7043' },
+  travel: { budget: 4500, color: '#ffa000' },
+  shopping: { budget: 6000, color: '#ffca28' },
+  gaming: { budget: 3000, color: '#ab47bc' },
+  investment: { budget: 12000, color: '#26c6da' },
+  bills: { budget: 5000, color: '#42a5f5' },
+  home: { budget: 7000, color: '#66bb6a' },
+  health: { budget: 4000, color: '#ef5350' },
+}
+
+function formatMonthLabel(value, language) {
+  const [year, month] = value.split('-').map(Number)
+  return new Intl.DateTimeFormat(language === 'th' ? 'th-TH' : 'en-US', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(year, month - 1, 1))
+}
+
+function shiftMonth(value, direction) {
+  const [year, month] = value.split('-').map(Number)
+  const next = new Date(year, month - 1 + direction, 1)
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`
+}
 
 export function QuestsCard() {
   const { quests, toggleQuest } = useStore()
   const { t } = useI18n()
-  const done = quests.filter(q => q.done).length
+  const done = quests.filter((q) => q.done).length
   const pct = Math.round((done / quests.length) * 100)
 
   return (
@@ -15,10 +51,10 @@ export function QuestsCard() {
       <div className="card-title">
         <span>🎯</span>
         {t('cards.questsTitle')}
-        <span className="dots-menu">···</span>
+        <span className="dots-menu">...</span>
       </div>
 
-      {quests.map(q => (
+      {quests.map((q) => (
         <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid rgba(57,255,20,0.05)', fontSize: 11 }}>
           <div className={`quest-checkbox ${q.done ? 'checked' : ''}`} onClick={() => toggleQuest(q.id)}>
             {q.done && <span style={{ color: 'var(--ng)', fontSize: 9, fontWeight: 700 }}>✓</span>}
@@ -54,9 +90,9 @@ export function WeeklySummaryCard() {
   ]
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card" style={{ padding: 13 }}>
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card" style={{ padding: 13, height: '100%' }}>
       <div className="card-title"><span>📊</span>{t('cards.weeklySummary')}</div>
-      {rows.map(row => (
+      {rows.map((row) => (
         <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(57,255,20,0.05)', fontSize: 11 }}>
           <span style={{ color: 'var(--text3)', fontSize: 10.5 }}>{row.label}</span>
           <span style={{ fontFamily: 'Rajdhani', fontWeight: 600, fontSize: 12, color: row.pos ? 'var(--ng)' : row.neg ? 'var(--red)' : 'var(--text)' }}>{row.value}</span>
@@ -68,19 +104,183 @@ export function WeeklySummaryCard() {
 }
 
 export function HabitTrackerCard() {
-  const { habits: storeHabits } = useStore()
-  const { t } = useI18n()
+  const { user } = useAuth()
+  const { data: storeExpenses } = useExpenses(user?.uid)
+  const { profile: userProfile } = useUserProfile(user?.uid)
+  const navigate = useNavigate()
+  const { language } = useI18n()
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
+  const [isEditingBudget, setIsEditingBudget] = useState(false)
+  const [budgetDrafts, setBudgetDrafts] = useState({})
+  const [savingBudgets, setSavingBudgets] = useState(false)
+
+  const viewAll = language === 'th' ? 'ดูรายการใช้เงินทั้งหมด →' : 'View All Expenses →'
+  const emptyText = language === 'th' ? 'ยังไม่มีรายการใช้เงินในเดือนนี้' : 'No expenses recorded for this month'
+  const editBudgetText = language === 'th' ? 'แก้งบ' : 'Edit Budget'
+  const cancelText = language === 'th' ? 'ยกเลิก' : 'Cancel'
+  const saveText = language === 'th' ? 'บันทึกงบ' : 'Save Budgets'
+  const savingText = language === 'th' ? 'กำลังบันทึก...' : 'Saving...'
+
+  const resolvedBudgets = useMemo(() => {
+    const savedBudgets = userProfile?.expenseBudgets || {}
+    return Object.fromEntries(
+      Object.entries(defaultBudgetConfig).map(([key, value]) => [
+        key,
+        Number(savedBudgets[key]) > 0 ? Number(savedBudgets[key]) : value.budget,
+      ])
+    )
+  }, [userProfile])
+
+  useEffect(() => {
+    if (!isEditingBudget) {
+      setBudgetDrafts(
+        Object.fromEntries(
+          Object.entries(resolvedBudgets).map(([key, value]) => [key, String(value)])
+        )
+      )
+    }
+  }, [isEditingBudget, resolvedBudgets])
+
+  const categoryRows = useMemo(() => {
+    const totalsByCategory = storeExpenses.reduce((acc, expense) => {
+      if (!expense?.date?.startsWith(selectedMonth)) return acc
+      acc[expense.category] = (acc[expense.category] || 0) + (Number(expense.amount) || 0)
+      return acc
+    }, {})
+
+    return expenseCategories
+      .map((category) => {
+        const spent = totalsByCategory[category.key] || 0
+        const budget = resolvedBudgets[category.key] || 1
+        return {
+          ...category,
+          spent,
+          budget,
+          percent: Math.min(Math.round((spent / budget) * 100), 100),
+          color: defaultBudgetConfig[category.key]?.color || '#39ff14',
+        }
+      })
+      .sort((a, b) => b.spent - a.spent)
+  }, [resolvedBudgets, selectedMonth, storeExpenses])
+
+  const visibleRows = isEditingBudget ? categoryRows : categoryRows.slice(0, 4)
+
+  const handleSaveBudgets = async () => {
+    if (!user) return
+
+    const payload = Object.fromEntries(
+      Object.keys(defaultBudgetConfig).map((key) => [
+        key,
+        Math.max(0, Number(budgetDrafts[key]) || defaultBudgetConfig[key].budget),
+      ])
+    )
+
+    setSavingBudgets(true)
+    try {
+      const ok = await saveExpenseBudgets(user.uid, payload)
+      if (ok) {
+        setIsEditingBudget(false)
+      }
+    } finally {
+      setSavingBudgets(false)
+    }
+  }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass-card" style={{ padding: 13 }}>
-      <div className="card-title"><span>🔥</span>{t('cards.habitsTitle')}<span className="dots-menu">···</span></div>
-      {storeHabits.map(h => (
-        <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid rgba(57,255,20,0.05)', fontSize: 11 }}>
-          <span style={{ flex: 1, color: 'var(--text2)', fontSize: 10.5 }}>{t(`habits.${h.key}`)}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, color: '#ff6b35', fontFamily: 'Rajdhani', fontWeight: 700, fontSize: 13 }}>{h.streak} 🔥</span>
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass-card" style={{ padding: 13, height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div className="card-title">
+        <span>💸</span>
+        Expense Tracker
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={() => setIsEditingBudget((current) => !current)}
+          style={{ marginLeft: 'auto', padding: '2px 8px', fontSize: 10 }}
+        >
+          {isEditingBudget ? cancelText : editBudgetText}
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 10 }}>
+        <button type="button" className="btn-ghost" onClick={() => setSelectedMonth(shiftMonth(selectedMonth, -1))} style={{ padding: '2px 8px', minWidth: 34 }}>
+          ‹
+        </button>
+        <div style={{ fontFamily: 'Rajdhani', fontSize: 13, fontWeight: 700, color: 'var(--ng)', letterSpacing: 1 }}>
+          {formatMonthLabel(selectedMonth, language)}
         </div>
-      ))}
-      <div className="view-more-link">{t('cards.viewFullHabits')}</div>
+        <button type="button" className="btn-ghost" onClick={() => setSelectedMonth(shiftMonth(selectedMonth, 1))} style={{ padding: '2px 8px', minWidth: 34 }}>
+          ›
+        </button>
+      </div>
+
+      <div style={{ flex: 1, minHeight: 0, overflowY: isEditingBudget ? 'auto' : 'hidden', paddingRight: isEditingBudget ? 4 : 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {visibleRows.map((category) => (
+          <div key={category.key}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3, fontSize: 10.5, gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                <span style={{ fontSize: 15 }}>{category.icon}</span>
+                <span style={{ color: 'var(--text2)' }}>{category.label}</span>
+              </div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontFamily: 'Rajdhani', fontWeight: 700, color: category.color }}>{category.percent}%</div>
+                {isEditingBudget ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
+                    <span style={{ color: 'var(--text3)', fontSize: 8 }}>฿{category.spent.toLocaleString()} /</span>
+                    <input
+                      className="input-dark"
+                      type="number"
+                      min="0"
+                      value={budgetDrafts[category.key] ?? ''}
+                      onChange={(e) => setBudgetDrafts((current) => ({ ...current, [category.key]: e.target.value }))}
+                      style={{ width: 84, padding: '3px 6px', fontSize: 10, textAlign: 'right' }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ color: 'var(--text3)', fontSize: 8 }}>฿{category.spent.toLocaleString()} / ฿{category.budget.toLocaleString()}</div>
+                )}
+              </div>
+            </div>
+            <div style={{ height: 4, background: `${category.color}14`, borderRadius: 2, overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.max(category.percent, category.spent > 0 ? 4 : 0)}%` }}
+                transition={{ duration: 1.2, delay: 0.25, ease: 'easeOut' }}
+                style={{
+                  height: '100%',
+                  background: `linear-gradient(90deg, ${category.color}aa, ${category.color})`,
+                  borderRadius: 2,
+                  boxShadow: `0 0 4px ${category.color}66`,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {!visibleRows.some((category) => category.spent > 0) && (
+        <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 8 }}>{emptyText}</div>
+      )}
+
+      {isEditingBudget && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10, marginBottom: 4 }}>
+          <button type="button" className="btn-primary" onClick={handleSaveBudgets} disabled={savingBudgets} style={{ padding: '6px 12px' }}>
+            {savingBudgets ? savingText : saveText}
+          </button>
+        </div>
+      )}
+
+      {!isEditingBudget && categoryRows.length > 5 && (
+        <div style={{ fontSize: 9, color: 'var(--text3)', marginTop: 6 }}>
+          {language === 'th' ? `แสดง ${visibleRows.length} จาก ${categoryRows.length} หมวด` : `Showing ${visibleRows.length} of ${categoryRows.length} categories`}
+        </div>
+      )}
+
+      <div className="view-more-link" onClick={() => navigate('/habits')} style={{ marginTop: 'auto', paddingTop: 12 }}>
+        {viewAll}
+      </div>
     </motion.div>
   )
 }
@@ -90,7 +290,7 @@ export function EmotionalTrackerCard({ chart }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card" style={{ padding: 13 }}>
-      <div className="card-title"><span>💜</span>{t('cards.emotionalTitle')}<span className="dots-menu">···</span></div>
+      <div className="card-title"><span>💜</span>{t('cards.emotionalTitle')}<span className="dots-menu">...</span></div>
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -129,7 +329,7 @@ export function MonthlyPerfCard({ chart }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass-card" style={{ padding: 13 }}>
-      <div className="card-title"><span>🗓️</span>{t('cards.monthlyTitle')}<span className="dots-menu">···</span></div>
+      <div className="card-title"><span>🗓️</span>{t('cards.monthlyTitle')}<span className="dots-menu">...</span></div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 6, marginBottom: 10 }}>
         {stats.map((stat) => (
@@ -161,9 +361,9 @@ export function MistakeTrackerCard() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card" style={{ padding: 13 }}>
-      <div className="card-title"><span>⚠️</span>{t('cards.mistakesTitle')}<span className="dots-menu">···</span></div>
+      <div className="card-title"><span>⚠️</span>{t('cards.mistakesTitle')}<span className="dots-menu">...</span></div>
 
-      {mistakes.map(m => (
+      {mistakes.map((m) => (
         <div key={m.id} style={{ marginBottom: 9 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3, fontSize: 10.5 }}>
             <span style={{ color: 'var(--text2)' }}>{t(`mistakes.${m.key}`)}</span>
@@ -185,9 +385,9 @@ export function AchievementsCard() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass-card" style={{ padding: 13 }}>
-      <div className="card-title"><span>🏆</span>{t('cards.achievementsTitle')}<span className="dots-menu">···</span></div>
+      <div className="card-title"><span>🏆</span>{t('cards.achievementsTitle')}<span className="dots-menu">...</span></div>
 
-      {achievements.map(ach => (
+      {achievements.map((ach) => (
         <div key={ach.id} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 0', borderBottom: '1px solid rgba(57,255,20,0.05)' }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: ach.bg, border: `1px solid ${ach.color}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, flexShrink: 0 }}>{ach.icon}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -209,7 +409,7 @@ export function QuickAccess() {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 8 }}>
-        {quickAccess.map(item => (
+        {quickAccess.map((item) => (
           <motion.div
             key={item.id}
             whileHover={{ y: -3, boxShadow: `0 6px 20px ${item.color}22` }}

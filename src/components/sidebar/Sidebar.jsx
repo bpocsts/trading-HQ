@@ -38,10 +38,13 @@ export default function Sidebar() {
         <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: 'var(--text3)', padding: '8px 14px 6px', textTransform: 'uppercase' }}>{t('sidebar.mainMenu')}</div>
         {navItems.map((item) => {
           const active = location.pathname === item.route
+          const label = item.labelKey === 'expenses'
+            ? (language === 'th' ? 'รายการใช้เงิน' : 'Expense Tracker')
+            : t(`nav.${item.labelKey}`)
           return (
             <motion.div key={item.route} className={`nav-item ${active ? 'active' : ''}`} onClick={() => navigate(item.route)} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
               <span style={{ fontSize: 13, width: 16, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>
-              <span style={{ fontSize: 12 }}>{t(`nav.${item.labelKey}`)}</span>
+              <span style={{ fontSize: 12 }}>{label}</span>
             </motion.div>
           )
         })}

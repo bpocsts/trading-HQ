@@ -55,12 +55,27 @@ export const performanceData = {
   values: [-200, 400, 800, 600, 1100, 1600, 2000],
 }
 
-export const habits = [
-  { id: 1, key: 'morningMeditation', name: 'Morning Meditation', streak: 7 },
-  { id: 2, key: 'planReview', name: 'Trading Plan Review', streak: 6 },
-  { id: 3, key: 'journalWriting', name: 'Journal Writing', streak: 7 },
-  { id: 4, key: 'exercise', name: 'Exercise', streak: 4 },
-  { id: 5, key: 'noRevenge', name: 'No Revenge Trading', streak: 7 },
+export const expenses = [
+  { id: 1, category: 'food', amount: 180, description: 'Lunch after London session', date: '2026-05-22' },
+  { id: 2, category: 'travel', amount: 95, description: 'Taxi to coworking space', date: '2026-05-22' },
+  { id: 3, category: 'investment', amount: 1200, description: 'Added funds to broker wallet', date: '2026-05-21' },
+  { id: 4, category: 'bills', amount: 650, description: 'Internet bill', date: '2026-05-20' },
+]
+
+export const deposits = [
+  { id: 1, amount: 5000, description: 'Salary deposit', date: '2026-05-22' },
+  { id: 2, amount: 2500, description: 'Freelance payout', date: '2026-05-18' },
+]
+
+export const expenseCategories = [
+  { key: 'food', icon: '🍔', label: 'อาหาร' },
+  { key: 'travel', icon: '🚗', label: 'เดินทาง' },
+  { key: 'shopping', icon: '🛒', label: 'ช้อปปิ้ง' },
+  { key: 'gaming', icon: '🎮', label: 'เกม' },
+  { key: 'investment', icon: '📈', label: 'ลงทุน' },
+  { key: 'bills', icon: '💡', label: 'บิล' },
+  { key: 'home', icon: '🏠', label: 'บ้าน' },
+  { key: 'health', icon: '❤️', label: 'สุขภาพ' },
 ]
 
 export const recentTrades = [
@@ -124,7 +139,7 @@ export const navItems = [
   { icon: '📋', labelKey: 'tradeLog', route: '/trades' },
   { icon: '📊', labelKey: 'performance', route: '/performance' },
   { icon: '🧠', labelKey: 'psychology', route: '/psychology' },
-  { icon: '🔥', labelKey: 'habits', route: '/habits' },
+  { icon: '💸', labelKey: 'expenses', route: '/habits' },
   { icon: '⚠️', labelKey: 'mistakes', route: '/mistakes' },
   { icon: '🏆', labelKey: 'achievements', route: '/achievements' },
   { icon: '📚', labelKey: 'strategies', route: '/strategies' },

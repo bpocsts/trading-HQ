@@ -86,7 +86,7 @@ export default function ProfileModal() {
               <div className="progress-bar">
                 <div className="progress-fill" style={{ width: `${(form.xp / form.xpMax) * 100}%` }} />
               </div>
-              <div style={{ fontSize: 9, color: 'var(--text3)', marginTop: 4 }}>XP increases automatically as you log trades and complete habits</div>
+              <div style={{ fontSize: 9, color: 'var(--text3)', marginTop: 4 }}>XP increases automatically as you log trades and keep your journal active</div>
             </Field>
 
             <div style={{ padding: '10px 12px', background: 'rgba(57,255,20,0.04)', border: '1px solid var(--border)', borderRadius: 8, marginBottom: 16, fontSize: 10, color: 'var(--text3)', lineHeight: 1.5 }}>
