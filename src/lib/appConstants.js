@@ -1,0 +1,100 @@
+export const navItems = [
+  { icon: '🏠', labelKey: 'dashboard', route: '/' },
+  { icon: '📋', labelKey: 'tradeLog', route: '/trades' },
+  { icon: '📊', labelKey: 'performance', route: '/performance' },
+  { icon: '🧠', labelKey: 'psychology', route: '/psychology' },
+  { icon: '🔁', labelKey: 'routine', route: '/routine' },
+  { icon: '💸', labelKey: 'expenses', route: '/habits' },
+  { icon: '⚠️', labelKey: 'mistakes', route: '/mistakes' },
+  { icon: '🏆', labelKey: 'achievements', route: '/achievements' },
+  { icon: '📜', labelKey: 'certificate', route: '/certificate' },
+  { icon: '⚙', labelKey: 'settings', route: '/settings' },
+]
+
+export const expenseCategories = [
+  { key: 'food', icon: '🍔', label: 'อาหาร' },
+  { key: 'travel', icon: '🚗', label: 'เดินทาง' },
+  { key: 'shopping', icon: '🛒', label: 'ช้อปปิ้ง' },
+  { key: 'gaming', icon: '🎮', label: 'เกม' },
+  { key: 'investment', icon: '📈', label: 'ลงทุน' },
+  { key: 'bills', icon: '💡', label: 'บิล' },
+  { key: 'home', icon: '🏠', label: 'บ้าน' },
+  { key: 'health', icon: '❤️', label: 'สุขภาพ' },
+]
+
+export const traderRoles = [
+  'Smart Money Concept Trader',
+  'Price Action Trader',
+  'Swing Trader',
+  'Scalper',
+  'Day Trader',
+  'ICT Trader',
+  'Algo Trader',
+]
+
+export const tradingSessions = ['London', 'New York', 'Asia', 'Sydney', 'All Sessions']
+
+export const emotionOptions = [
+  { value: 'Calm', icon: '😌' },
+  { value: 'Anxious', icon: '😟' },
+  { value: 'Confident', icon: '💪' },
+  { value: 'Neutral', icon: '😐' },
+  { value: 'Angry', icon: '😠' },
+  { value: 'Fearful', icon: '😨' },
+  { value: 'Euphoric', icon: '🤩' },
+]
+
+export const mistakeTypes = [
+  { label: 'No Confirmation', color: '#ff4444', icon: '🚫' },
+  { label: 'Early Entry', color: '#ff8c00', icon: '⏩' },
+  { label: 'FOMO', color: '#ffcc00', icon: '😰' },
+  { label: 'Revenge Trading', color: '#ff6b35', icon: '🤬' },
+  { label: 'Over Risk', color: '#ffaa00', icon: '💣' },
+  { label: 'No Stop Loss', color: '#ff4444', icon: '🎯' },
+  { label: 'Moving SL', color: '#ff8c00', icon: '🔄' },
+  { label: 'Overtrading', color: '#ffcc00', icon: '📈' },
+]
+
+export const achievementCatalog = [
+  { key: 'first_trade', icon: '🚀', title: 'First Trade Logged', sub: 'Log your very first trade', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'first_win', icon: '🥇', title: 'First Win', sub: 'Close your first winning trade', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'first_loss', icon: '🧱', title: 'First Loss', sub: 'Log your first losing trade with discipline', color: '#ff8c00', bg: 'rgba(255,140,0,0.12)' },
+  { key: 'trades_10', icon: '📘', title: '10 Trades Logged', sub: 'Build your first 10-trade sample size', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'trades_25', icon: '📗', title: '25 Trades Logged', sub: 'Reach 25 completed trades', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'trades_50', icon: '📙', title: '50 Trades Logged', sub: 'Track 50 trades in your journal', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'trades_100', icon: '📚', title: '100 Trades Logged', sub: 'Reach a 100-trade milestone', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'trades_200', icon: '🗂️', title: '200 Trades Logged', sub: 'Reach a 200-trade milestone', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'trades_1000', icon: '🏛️', title: '1000 Trades Logged', sub: 'Join the 1000-trade club', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'a_setup_hunter', icon: '🎯', title: 'A Setup Hunter', sub: 'Log 10 trades with Setup Grade A', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'boring_is_good', icon: '🧊', title: 'Boring Is Good', sub: 'Complete 10 trades without any logged mistakes', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'journal_discipline', icon: '📝', title: 'Journal Discipline', sub: 'Write notes for 20 trades', color: '#c084fc', bg: 'rgba(192,132,252,0.12)' },
+  { key: 'one_pair_focus', icon: '🎖️', title: 'One Pair Focus', sub: 'Log 20 trades on the same pair', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'win_rate_60', icon: '🎯', title: '60% Win Rate', sub: 'Maintain 60%+ win rate over your latest 20 trades', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'win_rate_70', icon: '🏆', title: '70% Win Rate', sub: 'Maintain 70%+ win rate over your latest 20 trades', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'win_rate_80', icon: '💎', title: '80% Win Rate', sub: 'Maintain 80%+ win rate over your latest 20 trades', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'win_rate_65_50', icon: '📈', title: 'Consistent Win Rate', sub: 'Maintain 65%+ win rate over your latest 50 trades', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'wins_5', icon: '✋', title: '5 Wins', sub: 'Close 5 winning trades', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'losses_10', icon: '🪨', title: '10 Losses Logged', sub: 'Keep journaling through 10 losing trades', color: '#ff8c00', bg: 'rgba(255,140,0,0.12)' },
+  { key: 'rr_1_2_5', icon: '📐', title: 'RR Above 1:2', sub: 'Hit at least 1:2 RR on 5 trades', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'rr_1_3_5', icon: '📏', title: 'RR Above 1:3', sub: 'Hit at least 1:3 RR on 5 trades', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'rr_master', icon: '📊', title: 'RR Master', sub: 'Average at least 1:3 RR over your latest 30 completed trades', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'high_rr_sniper', icon: '🎯', title: 'High RR Sniper', sub: 'Hit at least 1:4 RR on 5 trades', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'green_day_1', icon: '🟢', title: 'First Green Day', sub: 'Finish a day with net profit', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'green_week', icon: '🗓️', title: 'Green Week', sub: 'Finish a week in profit', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'green_month', icon: '📆', title: 'Green Month', sub: 'Finish a month in profit', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'return_5', icon: '💵', title: '+5% Return', sub: 'Grow trading equity by 5% from your starting balance', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'return_10', icon: '💵', title: '+10% Return', sub: 'Grow trading equity by 10% from your starting balance', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'return_20', icon: '💰', title: '+20% Return', sub: 'Grow trading equity by 20% from your starting balance', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'return_50', icon: '🚀', title: '+50% Return', sub: 'Grow trading equity by 50% from your starting balance', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'return_100', icon: '🌟', title: '+100% Return', sub: 'Double your trading equity from your starting balance', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'return_1000', icon: '👑', title: '+1000% Return', sub: 'Grow trading equity by 1000% from your starting balance', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'clean_week', icon: '🧼', title: 'Clean Week', sub: 'Have a trading week with no logged mistakes', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'clean_month', icon: '✨', title: 'Clean Month', sub: 'Have a trading month with no logged mistakes', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'gold_hunter', icon: '🥇', title: 'Gold Hunter', sub: 'Log 25 XAUUSD trades', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'lot_1', icon: '📦', title: '1 Lot Traded', sub: 'Accumulate 1.00 total lot size across all trades', color: '#39ff14', bg: 'rgba(57,255,20,0.12)' },
+  { key: 'lot_10', icon: '📦', title: '10 Lots Traded', sub: 'Accumulate 10.00 total lot size across all trades', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'lot_100', icon: '🏗️', title: '100 Lots Traded', sub: 'Accumulate 100.00 total lot size across all trades', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+  { key: 'note_master', icon: '📓', title: 'Note Master', sub: 'Write notes for 50 trades', color: '#c084fc', bg: 'rgba(192,132,252,0.12)' },
+  { key: 'mistake_aware', icon: '🔍', title: 'Mistake Aware', sub: 'Log 10 mistakes to study your patterns', color: '#ffcc00', bg: 'rgba(255,204,0,0.12)' },
+  { key: 'cashflow_starter', icon: '💳', title: 'Cash Flow Starter', sub: 'Create your first deposit and first expense', color: '#00cfff', bg: 'rgba(0,207,255,0.12)' },
+]

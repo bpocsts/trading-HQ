@@ -1,10 +1,16 @@
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import { emotionData } from '../../data/mockData'
 import { useI18n } from '../../i18n'
+import { useAuth } from '../../hooks/useAuth'
+import { usePsychology, useTrades } from '../../hooks/useFirestore'
+import { buildCumulativeSeries, buildDailyPLSeries, buildEmotionDistribution } from '../../lib/analytics'
+import { getEmotionLabel } from '../../lib/localization'
 
 export function EmotionChart() {
-  const { t } = useI18n()
+  const { user } = useAuth()
+  const { language } = useI18n()
+  const { data: entries } = usePsychology(user?.uid)
+  const emotions = buildEmotionDistribution(entries)
 
   const options = {
     chart: {
@@ -19,7 +25,7 @@ export function EmotionChart() {
     exporting: { enabled: false },
     tooltip: {
       backgroundColor: 'rgba(7,15,7,0.92)',
-      borderColor: 'rgba(57,255,20,0.3)',
+      borderColor: 'rgba(var(--ng-rgb),0.3)',
       style: { color: '#e8ffe8', fontFamily: 'Exo 2', fontSize: '11px' },
       formatter() { return `<b style="color:${this.color}">${this.point.name}</b>: ${this.y}` },
     },
@@ -33,11 +39,11 @@ export function EmotionChart() {
       },
     },
     series: [{
-      name: 'Emotions',
-      data: emotionData.labelKeys.map((labelKey, i) => ({
-        name: t(`emotions.${labelKey}`),
-        y: emotionData.values[i],
-        color: emotionData.colors[i],
+      name: language === 'th' ? 'อารมณ์' : 'Emotions',
+      data: emotions.map((item) => ({
+        name: getEmotionLabel(item.label, language),
+        y: item.value,
+        color: item.color,
         sliced: false,
       })),
     }],
@@ -46,7 +52,17 @@ export function EmotionChart() {
   return <HighchartsReact highcharts={Highcharts} options={options} />
 }
 
-export function MonthlyChart({ data }) {
+export function MonthlyChart() {
+  const { user } = useAuth()
+  const { language } = useI18n()
+  const { data: trades } = useTrades(user?.uid)
+  const dailySeries = buildDailyPLSeries(trades, 31)
+  const cumulativeSeries = buildCumulativeSeries(trades)
+  const categories = dailySeries.map((item) => item.date)
+  const plValues = dailySeries.map((item) => item.pl)
+  const cumulativeMap = Object.fromEntries(cumulativeSeries.map((item) => [item.date, item.value]))
+  const cumulativeValues = categories.map((date) => cumulativeMap[date] ?? 0)
+
   const options = {
     chart: {
       backgroundColor: 'transparent',
@@ -59,15 +75,15 @@ export function MonthlyChart({ data }) {
     credits: { enabled: false },
     exporting: { enabled: false },
     xAxis: {
-      categories: data.days,
-      lineColor: 'rgba(57,255,20,0.08)',
+      categories,
+      lineColor: 'rgba(var(--ng-rgb),0.08)',
       tickColor: 'transparent',
       gridLineColor: 'transparent',
       labels: { enabled: false },
     },
     yAxis: [
       {
-        gridLineColor: 'rgba(57,255,20,0.06)',
+        gridLineColor: 'rgba(var(--ng-rgb),0.06)',
         lineWidth: 0,
         title: { text: '' },
         labels: {
@@ -87,7 +103,7 @@ export function MonthlyChart({ data }) {
     tooltip: {
       shared: true,
       backgroundColor: 'rgba(7,15,7,0.92)',
-      borderColor: 'rgba(57,255,20,0.3)',
+      borderColor: 'rgba(var(--ng-rgb),0.3)',
       style: { color: '#e8ffe8', fontFamily: 'Exo 2', fontSize: '10px' },
     },
     plotOptions: {
@@ -105,18 +121,18 @@ export function MonthlyChart({ data }) {
     series: [
       {
         type: 'column',
-        name: 'Daily P/L',
+        name: language === 'th' ? 'P/L รายวัน' : 'Daily P/L',
         yAxis: 0,
-        data: data.pl.map(v => ({
-          y: v,
-          color: v >= 0 ? 'rgba(57,255,20,0.65)' : 'rgba(255,68,68,0.65)',
+        data: plValues.map((value) => ({
+          y: value,
+          color: value >= 0 ? 'rgba(var(--ng-rgb),0.65)' : 'rgba(255,68,68,0.65)',
         })),
       },
       {
         type: 'spline',
-        name: 'Cumulative',
+        name: language === 'th' ? 'สะสม' : 'Cumulative',
         yAxis: 1,
-        data: data.cumulative,
+        data: cumulativeValues,
         color: '#00cfff',
         lineWidth: 2,
       },

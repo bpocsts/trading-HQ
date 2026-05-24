@@ -1,13 +1,20 @@
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsMore from 'highcharts/highcharts-more'
-import { radarStats } from '../../data/mockData'
 import { useI18n } from '../../i18n'
+import { useAuth } from '../../hooks/useAuth'
+import { useMistakes, usePsychology, useTrades } from '../../hooks/useFirestore'
+import { buildRadarStats } from '../../lib/analytics'
 
 HighchartsMore(Highcharts)
 
 export default function RadarChart() {
   const { t } = useI18n()
+  const { user } = useAuth()
+  const { data: trades } = useTrades(user?.uid)
+  const { data: mistakes } = useMistakes(user?.uid)
+  const { data: psychology } = usePsychology(user?.uid)
+  const radarStats = buildRadarStats({ trades, mistakes, psychology })
 
   const options = {
     chart: {
@@ -24,8 +31,8 @@ export default function RadarChart() {
     pane: {
       size: '85%',
       background: [{
-        backgroundColor: 'rgba(57,255,20,0.02)',
-        borderColor: 'rgba(57,255,20,0.08)',
+        backgroundColor: 'rgba(var(--ng-rgb),0.02)',
+        borderColor: 'rgba(var(--ng-rgb),0.08)',
         borderWidth: 1,
         shape: 'circle',
       }],
@@ -34,13 +41,13 @@ export default function RadarChart() {
       categories: radarStats.labelKeys.map((key) => t(`radar.${key}`)),
       tickmarkPlacement: 'on',
       lineWidth: 0,
-      gridLineColor: 'rgba(57,255,20,0.1)',
+      gridLineColor: 'rgba(var(--ng-rgb),0.1)',
       labels: {
         style: { color: '#a0c8a0', fontSize: '9px', fontFamily: 'Rajdhani', fontWeight: '600' },
       },
     },
     yAxis: {
-      gridLineColor: 'rgba(57,255,20,0.1)',
+      gridLineColor: 'rgba(var(--ng-rgb),0.1)',
       lineWidth: 0,
       tickPositions: [0, 25, 50, 75, 100],
       labels: { enabled: false },
@@ -51,27 +58,27 @@ export default function RadarChart() {
     tooltip: {
       shared: true,
       backgroundColor: 'rgba(7,15,7,0.92)',
-      borderColor: 'rgba(57,255,20,0.3)',
+      borderColor: 'rgba(var(--ng-rgb),0.3)',
       style: { color: '#e8ffe8', fontFamily: 'Exo 2', fontSize: '11px' },
       formatter() {
-        return `<b style="color:#39ff14">${this.x}</b><br/><span>${this.y}</span>`
+        return `<b style="color:var(--ng)">${this.x}</b><br/><span>${this.y}/100</span>`
       },
     },
     series: [{
-      name: 'Trader Stats',
+      name: t('dashboard.traderStats'),
       data: radarStats.values,
       pointPlacement: 'on',
-      color: '#39ff14',
-      fillColor: 'rgba(57,255,20,0.08)',
+      color: 'var(--ng)',
+      fillColor: 'rgba(var(--ng-rgb),0.08)',
       lineWidth: 2,
       marker: {
         enabled: true,
-        fillColor: '#39ff14',
-        lineColor: '#39ff14',
+        fillColor: 'var(--ng)',
+        lineColor: 'var(--ng)',
         radius: 3,
         symbol: 'circle',
       },
-      shadow: { color: 'rgba(57,255,20,0.4)', width: 6, offsetX: 0, offsetY: 0, opacity: 0.5 },
+      shadow: { color: 'rgba(var(--ng-rgb),0.4)', width: 6, offsetX: 0, offsetY: 0, opacity: 0.5 },
     }],
   }
 

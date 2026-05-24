@@ -79,13 +79,13 @@ export const expenseCategories = [
 ]
 
 export const recentTrades = [
-  { id: 1, pair: 'XAUUSD', direction: 'Long', entry: 2275.20, sl: 2270.00, tp: 2285.00, rr: '1:1.88', result: 'Win', pl: 310, date: 'May 16' },
-  { id: 2, pair: 'EURUSD', direction: 'Short', entry: 1.0850, sl: 1.0890, tp: 1.0790, rr: '1:1.50', result: 'Win', pl: 150, date: 'May 16' },
-  { id: 3, pair: 'GBPUSD', direction: 'Long', entry: 1.2670, sl: 1.2630, tp: 1.2750, rr: '1:2.00', result: 'Loss', pl: -120, date: 'May 15' },
-  { id: 4, pair: 'XAUUSD', direction: 'Long', entry: 2282.10, sl: 2276.00, tp: 2295.00, rr: '1:2.11', result: 'Win', pl: 260, date: 'May 15' },
-  { id: 5, pair: 'USDJPY', direction: 'Short', entry: 155.20, sl: 155.80, tp: 154.10, rr: '1:1.83', result: 'Loss', pl: -100, date: 'May 14' },
-  { id: 6, pair: 'EURUSD', direction: 'Long', entry: 1.0820, sl: 1.0790, tp: 1.0890, rr: '1:2.33', result: 'Win', pl: 220, date: 'May 14' },
-  { id: 7, pair: 'GBPJPY', direction: 'Short', entry: 196.40, sl: 197.10, tp: 195.00, rr: '1:2.00', result: 'Win', pl: 340, date: 'May 13' },
+  { id: 1, pair: 'XAUUSD', direction: 'Long', entry: 2275.2, sl: 2270.0, tp: 2285.0, rr: '1:1.88', result: 'Win', pl: 310, date: 'May 16' },
+  { id: 2, pair: 'EURUSD', direction: 'Short', entry: 1.085, sl: 1.089, tp: 1.079, rr: '1:1.50', result: 'Win', pl: 150, date: 'May 16' },
+  { id: 3, pair: 'GBPUSD', direction: 'Long', entry: 1.267, sl: 1.263, tp: 1.275, rr: '1:2.00', result: 'Loss', pl: -120, date: 'May 15' },
+  { id: 4, pair: 'XAUUSD', direction: 'Long', entry: 2282.1, sl: 2276.0, tp: 2295.0, rr: '1:2.11', result: 'Win', pl: 260, date: 'May 15' },
+  { id: 5, pair: 'USDJPY', direction: 'Short', entry: 155.2, sl: 155.8, tp: 154.1, rr: '1:1.83', result: 'Loss', pl: -100, date: 'May 14' },
+  { id: 6, pair: 'EURUSD', direction: 'Long', entry: 1.082, sl: 1.079, tp: 1.089, rr: '1:2.33', result: 'Win', pl: 220, date: 'May 14' },
+  { id: 7, pair: 'GBPJPY', direction: 'Short', entry: 196.4, sl: 197.1, tp: 195.0, rr: '1:2.00', result: 'Win', pl: 340, date: 'May 13' },
 ]
 
 export const emotionData = {
@@ -99,7 +99,10 @@ export const monthlyData = (() => {
   const days = Array.from({ length: 22 }, (_, i) => `May ${i + 1}`)
   const pl = [120, -80, 200, 310, -150, 180, 420, 250, 90, 380, -100, 280, 190, 340, -80, 200, 310, 260, 180, 420, 150, 300]
   let cum = 0
-  const cumulative = pl.map(v => { cum += v; return cum })
+  const cumulative = pl.map((value) => {
+    cum += value
+    return cum
+  })
   return { days, pl, cumulative }
 })()
 

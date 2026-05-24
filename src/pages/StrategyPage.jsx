@@ -100,7 +100,7 @@ export default function StrategyPage() {
               </div>
 
               {selected.notes && (
-                <div style={{ padding: '10px 12px', background: 'rgba(57,255,20,0.04)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                <div style={{ padding: '10px 12px', background: 'rgba(var(--ng-rgb),0.04)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
                   {selected.notes}
                 </div>
               )}
@@ -143,7 +143,7 @@ export default function StrategyPage() {
                   {TIMEFRAMES.map(tf => (
                     <button key={tf} onClick={() => setForm(f => ({ ...f, timeframes: toggleArr(f.timeframes, tf) }))} style={{
                       padding: '4px 10px', border: `1px solid ${form.timeframes.includes(tf) ? 'var(--border2)' : 'var(--border)'}`,
-                      borderRadius: 5, background: form.timeframes.includes(tf) ? 'rgba(57,255,20,0.1)' : 'transparent',
+                      borderRadius: 5, background: form.timeframes.includes(tf) ? 'rgba(var(--ng-rgb),0.1)' : 'transparent',
                       color: form.timeframes.includes(tf) ? 'var(--ng)' : 'var(--text3)',
                       cursor: 'pointer', fontFamily: 'Rajdhani', fontWeight: 700, fontSize: 11,
                     }}>{tf}</button>

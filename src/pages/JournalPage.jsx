@@ -3,18 +3,20 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../hooks/useAuth'
 import { useJournals, saveJournalEntry } from '../hooks/useFirestore'
+import { useI18n } from '../i18n'
 import { format } from 'date-fns'
 
 const MOODS = [
-  { v: 1, label: '😤 Frustrated' },
-  { v: 3, label: '😟 Anxious' },
-  { v: 5, label: '😐 Neutral' },
-  { v: 7, label: '😊 Confident' },
-  { v: 10, label: '🔥 Focused' },
+  { v: 1, label: { en: '😤 Frustrated', th: '😤 หงุดหงิด' } },
+  { v: 3, label: { en: '😟 Anxious', th: '😟 กังวล' } },
+  { v: 5, label: { en: '😐 Neutral', th: '😐 กลาง ๆ' } },
+  { v: 7, label: { en: '😊 Confident', th: '😊 มั่นใจ' } },
+  { v: 10, label: { en: '🔥 Focused', th: '🔥 โฟกัส' } },
 ]
 
 export default function JournalPage() {
   const { user } = useAuth()
+  const { language } = useI18n()
   const today = format(new Date(), 'yyyy-MM-dd')
   const { data: journals, loading } = useJournals(user?.uid)
 
@@ -50,10 +52,10 @@ export default function JournalPage() {
 
       {/* Left: Entry list */}
       <div style={{ width: 240, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ fontFamily: 'Rajdhani', fontSize: 13, fontWeight: 700, color: 'var(--ng)', letterSpacing: 2, marginBottom: 4 }}>PAST ENTRIES</div>
-        {loading && <div style={{ fontSize: 11, color: 'var(--text3)' }}>Loading...</div>}
+        <div style={{ fontFamily: 'Rajdhani', fontSize: 13, fontWeight: 700, color: 'var(--ng)', letterSpacing: 2, marginBottom: 4 }}>{language === 'th' ? 'บันทึกที่ผ่านมา' : 'PAST ENTRIES'}</div>
+        {loading && <div style={{ fontSize: 11, color: 'var(--text3)' }}>{language === 'th' ? 'กำลังโหลด...' : 'Loading...'}</div>}
         {!loading && !journals.length && (
-          <div style={{ fontSize: 11, color: 'var(--text3)', fontStyle: 'italic', padding: '10px 0' }}>No journal entries yet.<br />Start writing today!</div>
+          <div style={{ fontSize: 11, color: 'var(--text3)', fontStyle: 'italic', padding: '10px 0' }}>{language === 'th' ? 'ยังไม่มีบันทึก' : 'No journal entries yet.'}<br />{language === 'th' ? 'เริ่มเขียนวันนี้ได้เลย' : 'Start writing today!'}</div>
         )}
         {journals.map(j => (
           <motion.div
@@ -65,11 +67,11 @@ export default function JournalPage() {
           >
             <div style={{ fontFamily: 'Rajdhani', fontSize: 12, fontWeight: 700, color: 'var(--text)', marginBottom: 2 }}>{j.date}</div>
             <div style={{ fontSize: 10, color: 'var(--text3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {j.content?.substring(0, 40) || 'No content'}...
+              {j.content?.substring(0, 40) || (language === 'th' ? 'ไม่มีเนื้อหา' : 'No content')}...
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: moodColor(j.mood || 5) }} />
-              <span style={{ fontSize: 9, color: 'var(--text3)' }}>Mood: {j.mood || '—'}/10</span>
+              <span style={{ fontSize: 9, color: 'var(--text3)' }}>{language === 'th' ? 'อารมณ์' : 'Mood'}: {j.mood || '—'}/10</span>
             </div>
           </motion.div>
         ))}
@@ -82,20 +84,20 @@ export default function JournalPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div>
                 <div style={{ fontFamily: 'Rajdhani', fontSize: 18, fontWeight: 700, color: 'var(--ng)' }}>{selectedEntry.date}</div>
-                <div style={{ fontSize: 10, color: 'var(--text3)' }}>Mood: <span style={{ color: moodColor(selectedEntry.mood) }}>{selectedEntry.mood}/10</span></div>
+                <div style={{ fontSize: 10, color: 'var(--text3)' }}>{language === 'th' ? 'อารมณ์' : 'Mood'}: <span style={{ color: moodColor(selectedEntry.mood) }}>{selectedEntry.mood}/10</span></div>
               </div>
-              <button className="btn-ghost" onClick={() => setSelectedEntry(null)}>✕ Close</button>
+              <button className="btn-ghost" onClick={() => setSelectedEntry(null)}>✕ {language === 'th' ? 'ปิด' : 'Close'}</button>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: 14 }}>{selectedEntry.content}</div>
             {selectedEntry.keyLearnings && (
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 10, color: 'var(--ng)', fontFamily: 'Rajdhani', fontWeight: 700, marginBottom: 4 }}>KEY LEARNINGS</div>
+                <div style={{ fontSize: 10, color: 'var(--ng)', fontFamily: 'Rajdhani', fontWeight: 700, marginBottom: 4 }}>{language === 'th' ? 'บทเรียนสำคัญ' : 'KEY LEARNINGS'}</div>
                 <div style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.6 }}>{selectedEntry.keyLearnings}</div>
               </div>
             )}
             {selectedEntry.tomorrowPlan && (
               <div>
-                <div style={{ fontSize: 10, color: '#00cfff', fontFamily: 'Rajdhani', fontWeight: 700, marginBottom: 4 }}>TOMORROW'S PLAN</div>
+                <div style={{ fontSize: 10, color: '#00cfff', fontFamily: 'Rajdhani', fontWeight: 700, marginBottom: 4 }}>{language === 'th' ? 'แผนสำหรับพรุ่งนี้' : "TOMORROW'S PLAN"}</div>
                 <div style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.6 }}>{selectedEntry.tomorrowPlan}</div>
               </div>
             )}
@@ -105,20 +107,20 @@ export default function JournalPage() {
             {/* New Entry Form */}
             <div className="glass-card" style={{ padding: 18 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div className="card-title" style={{ marginBottom: 0 }}><span>📝</span>Today's Journal — {today}</div>
+                <div className="card-title" style={{ marginBottom: 0 }}><span>📝</span>{language === 'th' ? 'บันทึกวันนี้' : "Today's Journal"} — {today}</div>
               </div>
 
               {/* Mood */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 6 }}>Mood Today</div>
+                <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 6 }}>{language === 'th' ? 'อารมณ์วันนี้' : 'Mood Today'}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {MOODS.map(m => (
                     <button key={m.v} onClick={() => setForm(f => ({ ...f, mood: m.v }))} style={{
                       padding: '5px 12px', border: `1px solid ${form.mood === m.v ? 'var(--border2)' : 'var(--border)'}`,
-                      borderRadius: 6, background: form.mood === m.v ? 'rgba(57,255,20,0.1)' : 'transparent',
+                      borderRadius: 6, background: form.mood === m.v ? 'rgba(var(--ng-rgb),0.1)' : 'transparent',
                       color: form.mood === m.v ? 'var(--ng)' : 'var(--text3)',
                       cursor: 'pointer', fontSize: 10, fontFamily: 'Exo 2',
-                    }}>{m.label}</button>
+                    }}>{m.label[language === 'th' ? 'th' : 'en']}</button>
                   ))}
                 </div>
               </div>
@@ -126,39 +128,39 @@ export default function JournalPage() {
               {/* Session & Pairs */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>Sessions Traded</div>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>{language === 'th' ? 'ช่วงเวลาที่เทรด' : 'Sessions Traded'}</div>
                   <input className="input-dark" placeholder="London, New York..." value={form.sessionsTraded} onChange={e => setForm(f => ({ ...f, sessionsTraded: e.target.value }))} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>Pairs Traded</div>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>{language === 'th' ? 'คู่เงินที่เทรด' : 'Pairs Traded'}</div>
                   <input className="input-dark" placeholder="XAUUSD, EURUSD..." value={form.pairs} onChange={e => setForm(f => ({ ...f, pairs: e.target.value }))} />
                 </div>
               </div>
 
               {/* Main content */}
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>Journal Entry</div>
-                <textarea className="input-dark" rows={5} placeholder="How did your trading session go today? What did you observe? How did you feel during trades?..."
+                <div style={{ fontSize: 9, color: 'var(--text3)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>{language === 'th' ? 'บันทึก' : 'Journal Entry'}</div>
+                <textarea className="input-dark" rows={5} placeholder={language === 'th' ? 'วันนี้การเทรดเป็นอย่างไร สังเกตอะไรได้บ้าง และรู้สึกอย่างไรระหว่างเทรด...' : 'How did your trading session go today? What did you observe? How did you feel during trades?...'}
                   value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                   style={{ resize: 'vertical', minHeight: 100, lineHeight: 1.6 }} />
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 9, color: 'var(--ng)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>Key Learnings</div>
-                <textarea className="input-dark" rows={2} placeholder="What did you learn today?..."
+                <div style={{ fontSize: 9, color: 'var(--ng)', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>{language === 'th' ? 'บทเรียนสำคัญ' : 'Key Learnings'}</div>
+                <textarea className="input-dark" rows={2} placeholder={language === 'th' ? 'วันนี้ได้เรียนรู้อะไร...' : 'What did you learn today?...'}
                   value={form.keyLearnings} onChange={e => setForm(f => ({ ...f, keyLearnings: e.target.value }))}
                   style={{ resize: 'vertical' }} />
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 9, color: '#00cfff', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>Tomorrow's Plan</div>
-                <textarea className="input-dark" rows={2} placeholder="What will you focus on tomorrow?..."
+                <div style={{ fontSize: 9, color: '#00cfff', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Rajdhani', marginBottom: 4 }}>{language === 'th' ? 'แผนพรุ่งนี้' : "Tomorrow's Plan"}</div>
+                <textarea className="input-dark" rows={2} placeholder={language === 'th' ? 'พรุ่งนี้จะโฟกัสอะไร...' : 'What will you focus on tomorrow?...'}
                   value={form.tomorrowPlan} onChange={e => setForm(f => ({ ...f, tomorrowPlan: e.target.value }))}
                   style={{ resize: 'vertical' }} />
               </div>
 
               <button className="btn-primary" style={{ justifyContent: 'center' }} onClick={handleSave} disabled={saving}>
-                {saving ? '...' : '📝 Save Journal Entry'}
+                {saving ? '...' : (language === 'th' ? '📝 บันทึก Journal' : '📝 Save Journal Entry')}
               </button>
             </div>
           </>
