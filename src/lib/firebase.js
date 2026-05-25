@@ -14,32 +14,37 @@ const requiredEnvVars = [
   'VITE_FIREBASE_APP_ID',
 ]
 
-const missingEnvVars = requiredEnvVars.filter((key) => !import.meta.env[key])
+export const missingFirebaseEnvVars = requiredEnvVars.filter((key) => !import.meta.env[key])
+export const isFirebaseConfigured = missingFirebaseEnvVars.length === 0
 
-if (missingEnvVars.length) {
-  throw new Error(
-    `Missing Firebase environment variables: ${missingEnvVars.join(', ')}. ` +
+if (!isFirebaseConfigured) {
+  console.warn(
+    `Missing Firebase environment variables: ${missingFirebaseEnvVars.join(', ')}. ` +
     'Create a .env file from .env.example and restart the Vite dev server.'
   )
 }
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-}
+const firebaseConfig = isFirebaseConfigured
+  ? {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    }
+  : null
 
-const app = initializeApp(firebaseConfig)
+const app = firebaseConfig ? initializeApp(firebaseConfig) : null
 
-export const auth = getAuth(app)
-export const db = initializeFirestore(app, {
-  ignoreUndefinedProperties: true,
-  experimentalForceLongPolling: true,
-})
-export const storage = getStorage(app)
-export const googleProvider = new GoogleAuthProvider()
+export const auth = app ? getAuth(app) : null
+export const db = app
+  ? initializeFirestore(app, {
+      ignoreUndefinedProperties: true,
+      experimentalForceLongPolling: true,
+    })
+  : null
+export const storage = app ? getStorage(app) : null
+export const googleProvider = app ? new GoogleAuthProvider() : null
 
 export default app

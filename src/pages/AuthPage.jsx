@@ -9,7 +9,7 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import toast from 'react-hot-toast'
 import { useI18n } from '../i18n'
-import { auth, db, googleProvider } from '../lib/firebase'
+import { auth, db, googleProvider, isFirebaseConfigured, missingFirebaseEnvVars } from '../lib/firebase'
 
 function getAuthErrorMessage(error, language = 'en') {
   const isThai = language === 'th'
@@ -54,6 +54,7 @@ export default function AuthPage() {
   })
   const { language, setLanguage, t } = useI18n()
   const validationText = useMemo(() => getValidationText(language), [language])
+  const firebaseSetupMessage = `Missing Firebase environment variables: ${missingFirebaseEnvVars.join(', ')}. Copy .env.example to .env, fill in your Firebase project values, and restart the Vite dev server.`
 
   const setField = (key, value) => {
     setFormError('')
@@ -101,6 +102,11 @@ export default function AuthPage() {
   }
 
   const handleSubmit = async () => {
+    if (!isFirebaseConfigured || !auth || !db) {
+      showError(firebaseSetupMessage)
+      return
+    }
+
     const email = form.email.trim()
     const name = form.name.trim()
     setFormError('')
@@ -146,6 +152,11 @@ export default function AuthPage() {
   }
 
   const handleGoogle = async () => {
+    if (!isFirebaseConfigured || !auth || !googleProvider || !db) {
+      showError(firebaseSetupMessage)
+      return
+    }
+
     setFormError('')
     setLoading(true)
     try {
@@ -206,6 +217,12 @@ export default function AuthPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {!isFirebaseConfigured ? (
+            <div style={{ padding: '10px 12px', border: '1px solid rgba(255,204,0,0.35)', borderRadius: 8, background: 'rgba(255,204,0,0.08)', color: '#ffd666', fontSize: 11, lineHeight: 1.5 }}>
+              {firebaseSetupMessage}
+            </div>
+          ) : null}
+
           <AnimatePresence>
             {mode === 'register' && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
